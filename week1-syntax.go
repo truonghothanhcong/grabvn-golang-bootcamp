@@ -33,7 +33,7 @@ func eval(a float64, b float64, arithmetic string) (float64, error) {
 	return result, err
 }
 
-func main() {
+func runHomework1() {
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Printf("> ")
 
