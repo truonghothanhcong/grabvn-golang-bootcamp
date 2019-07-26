@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 	"sync"
@@ -11,6 +12,7 @@ import (
 
 var global_result = make(map[string]int)
 var numberOfJobs int = 3
+var numberOfBufferSizes int = 16
 
 func readAllFilePaths(pathFolder string) ([]string, error) {
 	var filePaths []string
@@ -71,6 +73,44 @@ func writer(writeResult <-chan map[string]int) {
 			}
 		}
 	}
+}
+
+// TODO: serve for large file by read file in block
+// not run now :)
+func countFrequencyAppears2(filePath string) (map[string]int, error) {
+	var result = make(map[string]int)
+	var buffer = make([]byte, numberOfBufferSizes)
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return result, err
+	}
+	defer f.Close()
+	
+	for {
+		_, err := f.Read(buffer)
+		if err != nil {
+			fmt.Println(err)
+			if err == io.EOF {
+				break
+			}
+		} else {
+			text := string(buffer)
+			fmt.Println(text)
+		}
+	}
+	
+	// text := string(fileByte)
+	// wordList := strings.Fields(text)
+	// for _, w := range wordList {
+	// 	if _, ok := result[w]; ok {
+	// 		result[w]++
+	// 	} else {
+	// 		result[w] = 1
+	// 	}
+	// }
+
+	return result, nil
 }
 
 func main() {
