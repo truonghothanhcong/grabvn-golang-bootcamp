@@ -9,20 +9,23 @@ import (
 	"path/filepath"
 )
 
-func readAllFileDirs(pathFolder string) ([]string, error) {
-	var fileDirs []string
+var global_result = make(map[string]int)
+var numberOfJobs int = 3
+
+func readAllFilePaths(pathFolder string) ([]string, error) {
+	var filePaths []string
 	err := filepath.Walk(pathFolder,
 		func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.IsDir() {
-			fileDirs = append(fileDirs, path)
+			filePaths = append(filePaths, path)
 		}
 		return nil
 	})
 
-	return fileDirs, err
+	return filePaths, err
 }
 
 func countFrequencyAppears(filePath string) (map[string]int, error) {
@@ -58,8 +61,6 @@ func worker(id int, wg *sync.WaitGroup, job <-chan string, writeResult chan<- ma
 	wg.Done()
 }
 
-var global_result = make(map[string]int)
-
 func writer(writeResult <-chan map[string]int) {
 	for result := range writeResult {
 		for key, value := range result {
@@ -72,29 +73,19 @@ func writer(writeResult <-chan map[string]int) {
 	}
 }
 
-func listFileDir(path string, info os.FileInfo) []string {
-	var fileDirs []string
-	
-	if !info.IsDir() {
-		fileDirs = append(fileDirs, path)
-	}
-	fmt.Println(path, info.Size(), info.IsDir())
-	return fileDirs
-}
-
 func main() {
 	jobs := make(chan string)
 	result := make(chan map[string]int)
 	var wg sync.WaitGroup
 
-	paths, err := readAllFileDirs("./file_folder")
+	paths, err := readAllFilePaths("./file_folder")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	
 	go writer(result)
-	for w := 1; w <= 3; w++ {
+	for w := 1; w <= numberOfJobs; w++ {
 		wg.Add(1)
 		go worker(w, &wg, jobs, result)
 	}
