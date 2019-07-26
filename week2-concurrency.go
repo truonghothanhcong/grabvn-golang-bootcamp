@@ -5,20 +5,24 @@ import (
 	"io/ioutil"
 	"strings"
 	"sync"
+	"os"
+	"path/filepath"
 )
 
-func readPathFromFolder(pathFolder string) ([]string, error) {
-	var filePaths []string
-	filesInfo, err := ioutil.ReadDir(pathFolder)
-	if err != nil {
-		return filePaths, err
-	}
+func readAllFileDirs(pathFolder string) ([]string, error) {
+	var fileDirs []string
+	err := filepath.Walk(pathFolder,
+		func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			fileDirs = append(fileDirs, path)
+		}
+		return nil
+	})
 
-	for _, f := range filesInfo {
-		filePaths = append(filePaths, pathFolder + f.Name())
-	}
-
-	return filePaths, nil
+	return fileDirs, err
 }
 
 func countFrequencyAppears(filePath string) (map[string]int, error) {
@@ -68,21 +72,26 @@ func writer(writeResult <-chan map[string]int) {
 	}
 }
 
+func listFileDir(path string, info os.FileInfo) []string {
+	var fileDirs []string
+	
+	if !info.IsDir() {
+		fileDirs = append(fileDirs, path)
+	}
+	fmt.Println(path, info.Size(), info.IsDir())
+	return fileDirs
+}
+
 func main() {
 	jobs := make(chan string)
 	result := make(chan map[string]int)
 	var wg sync.WaitGroup
 
-	paths, err := readPathFromFolder("./file_folder/")
+	paths, err := readAllFileDirs("./file_folder")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	// fmt.Println(paths)
-	// for _, j := range paths {
-	// 	result_1, _ := countFrequencyAppears(j)
-	// 	fmt.Println(result_1)
-	// }
 	
 	go writer(result)
 	for w := 1; w <= 3; w++ {
