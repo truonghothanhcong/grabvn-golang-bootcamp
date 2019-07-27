@@ -10,14 +10,13 @@ import (
 	"path/filepath"
 )
 
-var global_result = make(map[string]int)
+var globalResult = make(map[string]int)
 var numberOfJobs int = 3
 var numberOfBufferSizes int = 16
 
 func readAllFilePaths(pathFolder string) ([]string, error) {
 	var filePaths []string
-	err := filepath.Walk(pathFolder,
-		func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(pathFolder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -53,11 +52,11 @@ func countFrequencyAppears(filePath string) (map[string]int, error) {
 
 func worker(id int, wg *sync.WaitGroup, job <-chan string, writeResult chan<- map[string]int) {
 	for path := range job {
-		result_count, err := countFrequencyAppears(path)
+		resultCount, err := countFrequencyAppears(path)
 		if err != nil {
 			fmt.Println("error: ", err)
 		} else {
-			writeResult <- result_count
+			writeResult <- resultCount
 		}
 	}
 	wg.Done()
@@ -66,10 +65,10 @@ func worker(id int, wg *sync.WaitGroup, job <-chan string, writeResult chan<- ma
 func writer(writeResult <-chan map[string]int) {
 	for result := range writeResult {
 		for key, value := range result {
-			if _, ok := global_result[key]; ok {
-				global_result[key] += value
+			if _, ok := globalResult[key]; ok {
+				globalResult[key] += value
 			} else {
-				global_result[key] = value
+				globalResult[key] = value
 			}
 		}
 	}
@@ -136,5 +135,5 @@ func main() {
 	close(jobs)
 
 	wg.Wait()
-	fmt.Println(global_result)
+	fmt.Println(globalResult)
 }
