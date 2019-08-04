@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package ssh;
+
+message GetListUserRequest {
+    int32 Page = 1;
+    int32 PageSize = 2;
+}
+
+message User {
+    int32 Id = 1;
+    string Name = 2;
+}
+
+message GetListUserResponse {
+    int32 ResponseCode = 1;
+    User Users = 2;
+}
+
+message GetUserRequest {
+    int32 id = 1;
+}
+
+message GetUserResponse {
+    int32 ResponseCode = 1;
+    User UserResponse = 2;
+}
+
+message CreateUserRequest {
+    int32 id = 1;
+    string name = 2;
+}
+
+message CreateUserResponse {
+    int32 ResponseCode = 1;
+    User UserResponse = 2;
+}
+
+message UpdateUserRequest {
+    int32 id = 1;
+    string name = 2;
+}
+
+message UpdateUserResponse {
+    int32 ResponseCode = 1;
+    User UserResponse = 2;
+}
+
+message DeleteUserRequest {
+    int32 id = 1;
+}
+
+message DeleteUserResponse {
+    int32 ResponseCode = 1;
+    string msg = 2;
+}
+
+service UserService {
+    rpc GetListUser (GetListUserRequest) returns (GetListUserResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+}
