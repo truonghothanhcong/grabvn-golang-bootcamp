@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "./feedback"
+	pb "../feedback"
 	"context"
 	"net"
 	"log"
