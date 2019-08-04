@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+
+service FeedbackService {
+    rpc AddPassengerFeedback (AddPassengerFeedbackRequest) returns (AddPassengerFeedbackResponse);
+    rpc GetByPassengerId (GetByPassengerIdRequest) returns (GetByPassengerIdResponse);
+    rpc GetByBookingCode (GetByBookingCodeRequest) returns (GetByBookingCodeResponse);
+    rpc DeleteByPassengerId (DeleteByPassengerIdRequest) returns (DeleteByPassengerIdResponse);
+}
+
+message ResponseCode {
+    int32 Code = 1;
+    string Msg = 2;
+}
+
+message FeedbackMessage {
+    string BookingCode = 1;
+    int32  PassengerId = 2;
+    string Feedback    = 3;
+}
+
+message AddPassengerFeedbackRequest {
+    FeedbackMessage FeedbackMsg = 1;
+}
+
+message AddPassengerFeedbackResponse {
+    ResponseCode ResCode = 1;
+    FeedbackMessage FeedbackMsg = 2;
+}
+
+message GetByPassengerIdRequest {
+    int32  PassengerId = 2;
+}
+
+message GetByPassengerIdResponse {
+    ResponseCode ResCode = 1;
+    repeated FeedbackMessage FeedbackMsgs = 2;
+}
+
+message GetByBookingCodeRequest {
+    string BookingCode = 1;
+}
+
+message GetByBookingCodeResponse {
+    ResponseCode ResCode = 1;
+    FeedbackMessage FeedbackMsg = 2;
+}
+
+message DeleteByPassengerIdRequest {
+    int32 PassengerId = 1;
+}
+
+message DeleteByPassengerIdResponse {
+    ResponseCode ResCode = 1;
+    int32 NumberOfDeleted = 2;
+}
