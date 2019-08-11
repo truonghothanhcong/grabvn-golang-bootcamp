@@ -5,18 +5,21 @@ import (
 	"./service"
 	"./dbworker"
 
+	"context"
 	"fmt"
 	"net"
+	"net/http"
 	"log"
 	"time"
 	"google.golang.org/grpc"
 	"github.com/go-pg/pg"
+	grpc_runtime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
 
 
 func main() {
 	grpcAddress := "localhost:5001"
-	// httpAddress := "localhost:5002"
+	httpAddress := "localhost:5002"
 
 	fmt.Printf("Connecting into DB\n")
 	// Connect to PostgresQL
@@ -44,7 +47,22 @@ func main() {
 	}
 
 	fmt.Printf("Serving GRPC at %s.\n", grpcAddress)
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	go s.Serve(lis)
+	// if err := ; err != nil {
+	// 	log.Fatalf("failed to serve: %v", err)
+	// }
+
+
+	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
+	if err != nil {
+		panic("Couldn't contact grpc server")
 	}
+
+	mux := grpc_runtime.NewServeMux()
+	err = pb.RegisterTodoServiceHandler(context.Background(), mux, conn)
+	if err != nil {
+		panic("Cannot serve http api")
+	}
+	fmt.Printf("Serving http at %s.\n", httpAddress)
+	http.ListenAndServe(httpAddress, mux)
 }
