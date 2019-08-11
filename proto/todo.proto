@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package todo.v1;
+
+option go_package = "pb";
+
+// import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+service TodoService {
+    rpc CreateTodo (CreateTodoRequest) returns (CreateTodoResponse);
+    rpc GetTodo (GetTodoRequest) returns (GetTodoResponse);
+    rpc ListTodo (ListTodoRequest) returns (ListTodoResponse);
+    rpc DeleteTodo (DeleteTodoRequest) returns (DeleteTodoResponse);
+}
+
+message Todo {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+
+    // @inject_tag: sql:",notnull,default:false"
+    bool complated = 4;
+
+    // @inject_tag: sql:"type:timestamptz,default:now()"
+    google.protobuf.Timestamp created_at = 5;
+
+    // @inject_tag: sql:"type:timestamptz"
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+message Result {
+    string code = 1;
+    string msg = 2;
+}
+
+message CreateTodoRequest {
+    Todo item = 1;
+}
+  
+message CreateTodoResponse {
+    Result responseResult = 1;
+    Todo item = 2;
+}
+
+message GetTodoRequest {
+    string id = 1;
+}
+
+message GetTodoResponse {
+    Result responseResult = 1;
+    Todo item = 2;
+}
+
+message ListTodoRequest {
+    int32 limit = 1;
+    bool not_completed = 2;
+}
+
+message ListTodoResponse {
+    Result responseResult = 1;
+    repeated Todo items = 2;
+}
+
+message DeleteTodoRequest {
+    string id = 1;
+}
+
+message DeleteTodoResponse {
+    Result responseResult = 1;
+}
